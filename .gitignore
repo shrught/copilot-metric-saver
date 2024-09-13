@@ -1,7 +1,6 @@
 # Node.js
 node_modules/
 dist/
-.env
 
 # Logs
 logs/

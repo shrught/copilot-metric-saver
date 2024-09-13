@@ -1,21 +1,33 @@
-import express, { Request, Response } from 'express';
+// src/api/server.ts
+import express from 'express';
+import { UsageServiceFactory } from './api/UsageServiceFactory';
+import cors from 'cors';
+  
+const usageService=UsageServiceFactory.createUsageService();
 
 const app = express();
-const PORT = 3000;
-
-// 中间件
+const port = 3000;
 app.use(express.json());
+app.use(cors());
 
-// 路由
-app.get('/', (req: Request, res: Response) => {
-    res.send('Hello, World!');
+// redirect default to /metrics/service
+app.get('/', (req, res) => {
+    res.redirect('/metrics/service');
 });
 
-app.post('/data', (req: Request, res: Response) => {
-    const data = req.body;
-    res.json({ received: data });
+// call metrics service
+app.get('/metrics/service', async (req, res) => {
+    try {
+        const { since, until, page = 1, per_page = 60 } = req.query;
+        // call the saveUsageData method
+        await(usageService.saveUsageData());
+        const data = await usageService.queryUsageData(since as string, until as string, parseInt(page as string), parseInt(per_page as string));
+        res.json(data);
+    } catch (error) {
+        res.status(500).send('Error fetching metrics from storage');
+    }
 });
 
-app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
+app.listen(port, () => {
+    console.log(`Server is running at http://localhost:${port}`);
 });

@@ -5,10 +5,10 @@
 //Return the response from the API
 
 import axios from 'axios';
-import { Metrics } from './model/Metrics';
-import organizationMockedResponse from './assets/organization_response_sample.json';
-import enterpriseMockedResponse from './assets/enterprise_response_sample.json';
-import config from './config';
+import { Metrics } from '../model/Metrics';
+import organizationMockedResponse from '../assets/organization_response_sample.json';
+import enterpriseMockedResponse from '../assets/enterprise_response_sample.json';
+import config from '../config';
 
 export const getMetricsApi = async (): Promise<Metrics[]> => {
 
