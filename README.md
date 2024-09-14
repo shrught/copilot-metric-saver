@@ -8,8 +8,8 @@ This project is an Express.js application that interacts with GitHub APIs to fet
 
 1. **Clone the repository**:
     ```sh
-    git clone https://github.com/yourusername/my-express-app.git
-    cd my-express-app
+    git clone https://github.com/DevOps-zhuang/copilot-metric-saver.git
+    cd opilot-metric-saver
     ```
 
 2. **Install dependencies**:
@@ -56,3 +56,8 @@ DB_USER=root
 DB_PASSWORD=password
 DB_DATABASE=copilot_usage
 DB_PORT=3306
+
+Running the Application
+Run the application:
+License
+This project is licensed under the MIT License. See the LICENSE file for details.
