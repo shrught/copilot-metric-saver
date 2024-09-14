@@ -1,6 +1,5 @@
 # copilot-metric-saver
 call github copilot usage and seat API, then save fetched data to file  or mysql for persistent save, then anlyze it.
-# My Express App
 
 This project is an Express.js application that interacts with GitHub APIs to fetch and store metrics. It supports different storage types (file or MySQL) and can be configured to use mocked data for testing purposes.
 
@@ -58,8 +57,8 @@ DB_DATABASE=copilot_usage
 DB_PORT=3306
 
 
-
 ## Running the Application
+
 Run the application:ts-node src/server.ts
 
 License
