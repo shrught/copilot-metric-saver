@@ -57,7 +57,10 @@ DB_PASSWORD=password
 DB_DATABASE=copilot_usage
 DB_PORT=3306
 
-Running the Application
-Run the application:
+
+
+## Running the Application
+Run the application:ts-node src/server.ts
+
 License
 This project is licensed under the MIT License. See the LICENSE file for details.
