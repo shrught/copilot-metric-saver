@@ -10,9 +10,9 @@ export class CopilotUsageStorageService {
         this.storage = storage;
     }
 
-    public async saveUsageData(): Promise<boolean> {
+    public async saveUsageData(org: string): Promise<boolean> {
         try {
-            const metrics = await getMetricsApi();
+            const metrics = await getMetricsApi(org);
             if (!Array.isArray(metrics)) {
                 throw new Error('Result is not an array.');
             }
@@ -32,14 +32,16 @@ export class CopilotUsageStorageService {
         }
     }
 
-    public async queryUsageData(since?: string, until?: string, page?: number, per_page?: number): Promise<Metrics[]> {
+    public async queryUsageData(organization: string, since?: string, until?: string, page?: number, per_page?: number): Promise<Metrics[]> {
         try {
-            return await this.storage.queryUsageData(since, until, page, per_page);
+            return await this.storage.queryUsageData(organization, since, until, page, per_page);
         } catch (error) {
             console.error('Error querying usage data:', error);
             return [];
         }
     }
+
+   
 
 
 }

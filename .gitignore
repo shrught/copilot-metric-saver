@@ -1,6 +1,7 @@
 # Node.js
 node_modules/
-dist/
+npm-debug.log
+yarn-error.log
 
 # Logs
 logs/
@@ -39,6 +40,10 @@ data/
 
 # dotenv environment variables file
 .env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
 
 # MacOS
 .DS_Store
