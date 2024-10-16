@@ -10,7 +10,7 @@ import organizationMockedResponse from '../assets/organization_response_sample.j
 import enterpriseMockedResponse from '../assets/enterprise_response_sample.json';
 import config from '../config';
 
-export const getMetricsApi = async (): Promise<Metrics[]> => {
+export const getMetricsApi = async (scopeName: string): Promise<Metrics[]> => {
 
   let response;
   let metricsData;
@@ -21,18 +21,33 @@ export const getMetricsApi = async (): Promise<Metrics[]> => {
     //console.log("Mock response:", response);
     metricsData = response.map((item: any) => new Metrics(item));
   } else {
-    response = await axios.get(
-      `${config.github.apiUrl}/copilot/usage`,
-      {
-        headers: {
-          Accept: "application/vnd.github+json",
-          Authorization: `Bearer ${config.github.token}`,
-          "X-GitHub-Api-Version": "2022-11-28",
-        },
-      }
-    );
-    //console.log("API response:", response.data);
-    metricsData = response.data.map((item: any) => new Metrics(item));
+      if(config.scope.type === "organization"){
+      response = await axios.get(
+        `${config.github.apiUrl}/orgs/${scopeName}/copilot/usage`,
+          {
+            headers: {
+              Accept: "application/vnd.github+json",
+              Authorization: `Bearer ${config.github.token}`,
+              "X-GitHub-Api-Version": "2022-11-28",
+            },
+          }
+      );
+      //console.log("API response:", response.data);
+      metricsData = response.data.map((item: any) => new Metrics(item));
+    } else if(config.scope.type === "enterprise"){
+      response = await axios.get(
+        `${config.github.apiUrl}/enterprises/${scopeName}/copilot/usage`,
+          {
+            headers: {
+              Accept: "application/vnd.github+json",
+              Authorization: `Bearer ${config.github.token}`,
+              "X-GitHub-Api-Version": "2022-11-28",
+            },
+          }
+      );
+      //console.log("API response:", response.data);
+      metricsData = response.data.map((item: any) => new Metrics(item));
+    }
   }
   //console.log("Metrics data:", metricsData);
   return metricsData;
