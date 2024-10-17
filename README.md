@@ -8,7 +8,7 @@ This project is an Express.js application that interacts with GitHub APIs to fet
 
 1. **Clone the repository**:
     ```sh
-    git clone https://github.com/DevOps-zhuang/copilot-metric-saver.git
+    git clone https://github.com/shrught/copilot-metric-saver.git
     cd opilot-metric-saver
     ```
 
