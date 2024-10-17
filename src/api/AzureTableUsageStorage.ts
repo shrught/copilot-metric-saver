@@ -26,7 +26,7 @@ const tableServiceClient = new TableServiceClient(`https://${accountName}.table.
 export class AzureTableUsageStorage implements IUsageStorage {
     private tableClient: TableClient;
 
-    constructor(private organizationName: string) {
+    constructor(private scopeName: string) {
         this.tableClient = new TableClient(`https://${accountName}.table.core.windows.net`, tableName, credential);
         this.createTableIfNotExists(tableName);
     }
@@ -67,7 +67,7 @@ export class AzureTableUsageStorage implements IUsageStorage {
 
     public async saveUsageData(): Promise<boolean> {
         try {
-            const metrics = await getMetricsApi(this.organizationName);
+            const metrics = await getMetricsApi(this.scopeName);
             if (!Array.isArray(metrics)) {
                 throw new Error('Result is not an array.');
             }
@@ -80,8 +80,8 @@ export class AzureTableUsageStorage implements IUsageStorage {
                 };
 
                 const entity = {
-                    partitionKey: this.organizationName,
-                    rowKey: `${metric.day}_${this.organizationName}`,
+                    partitionKey: this.scopeName, // Required by Azure Table Storage
+                    rowKey: metric.day, // Required by Azure Table Storage
                     ...serializedMetric
                 };
                 await this.tableClient.upsertEntity(entity);
@@ -99,7 +99,7 @@ export class AzureTableUsageStorage implements IUsageStorage {
     private async compareAndUpdateMetrics(latestUsage?: Metrics[], ScopeUsage?: Metrics[]): Promise<void> {
         try {
             if (!latestUsage) {
-                latestUsage = await getMetricsApi(this.organizationName);
+                latestUsage = await getMetricsApi(this.scopeName);
             }
             if (!ScopeUsage) {
                 ScopeUsage = await this.readUsageData();
@@ -134,8 +134,8 @@ export class AzureTableUsageStorage implements IUsageStorage {
                         };
 
                         const entity = {
-                            partitionKey: this.organizationName,
-                            rowKey: `${metric.day}_${this.organizationName}`,
+                            partitionKey: this.scopeName, // Required by Azure Table Storage
+                            rowKey: metric.day, // Required by Azure Table Storage
                             ...serializedMetric
                         };
                         await this.tableClient.upsertEntity(entity);
@@ -155,14 +155,14 @@ export class AzureTableUsageStorage implements IUsageStorage {
         console.log(`Notification sent for updated days: ${updatedDays.join(', ')}, added days: ${addedDays.join(', ')}`);
     }
 
-    async queryUsageData(organization: string, since?: string, until?: string, page: number = 1, per_page: number = 28): Promise<Metrics[]> {
+    async queryUsageData(scopeName: string, since?: string, until?: string, page: number = 1, per_page: number = 28): Promise<Metrics[]> {
         try {
-            const filterConditions = [`PartitionKey eq '${organization}'`];
+            const filterConditions = [`PartitionKey eq '${scopeName}'`];
             if (since) {
-                filterConditions.push(`RowKey ge '${since}_${organization}'`);
+                filterConditions.push(`RowKey ge '${since}'`);
             }
             if (until) {
-                filterConditions.push(`RowKey le '${until}_${organization}'`);
+                filterConditions.push(`RowKey le '${until}'`);
             }
             const filter = filterConditions.join(' and ');
 
