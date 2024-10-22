@@ -10,6 +10,7 @@ export const getSeatsApi = async (org: string): Promise<Seat[]> => {
   const perPage = 100;
   let page = 1;
   let seatsData: Seat[] = [];
+  const currentDate = new Date().toISOString().split('T')[0]; // Get the current date
 
   let response;
   
@@ -20,7 +21,11 @@ export const getSeatsApi = async (org: string): Promise<Seat[]> => {
   else {
     if (config.mockedData) {
       response = organizationMockedResponse_seats;
-      seatsData = seatsData.concat(response.seats.map((item: any) => new Seat(item)));
+      seatsData = seatsData.concat(response.seats.map((item: any) => {
+        const seat = new Seat(item, currentDate);
+        seat.last_activity_at = formatDateTime(seat.last_activity_at); // Convert to detailed time format
+        return seat;
+      }));
     }
     else {
       // Fetch the first page to get the total number of seats
@@ -36,7 +41,11 @@ export const getSeatsApi = async (org: string): Promise<Seat[]> => {
         }
       });
       
-      seatsData = seatsData.concat(response.data.seats.map((item: any) => new Seat(item)));
+      seatsData = seatsData.concat(response.data.seats.map((item: any) => {
+        const seat = new Seat(item, currentDate);
+        seat.last_activity_at = formatDateTime(seat.last_activity_at); // Convert to detailed time format
+        return seat;
+      }));
 
       // Calculate the total pages
       const totalSeats = response.data.total_seats;
@@ -56,9 +65,24 @@ export const getSeatsApi = async (org: string): Promise<Seat[]> => {
           }
         });
 
-        seatsData = seatsData.concat(response.data.seats.map((item: any) => new Seat(item)));
+        seatsData = seatsData.concat(response.data.seats.map((item: any) => {
+          const seat = new Seat(item, currentDate);
+          seat.last_activity_at = formatDateTime(seat.last_activity_at); // Convert to detailed time format
+          return seat;
+        }));
       }
     }
     return seatsData;
   }
+}
+
+// Helper function to format date and time to yyyy-mm-ddThh:mm in the current timezone
+const formatDateTime = (dateTime: string): string => {
+  const date = new Date(dateTime);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+  return `${year}-${month}-${day}T${hours}:${minutes}`;
 }

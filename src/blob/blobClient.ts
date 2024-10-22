@@ -23,12 +23,12 @@ export async function uploadFileToTable(filePath: string) {
         const data = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
 
         for (const entry of data) {
-            const day = entry.day;
             const organization = entry.organization;
             for (const seat of entry.seats) {
                 const entity = {
-                    partitionKey: `${organization}`,
-                    rowKey: `${day}_${seat.login}`,
+                    partitionKey: organization,
+                    rowKey: seat.day,
+                    organization: organization, // Custom property
                     ...seat
                 };
                 await tableClient.upsertEntity(entity);
