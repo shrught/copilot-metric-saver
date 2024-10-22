@@ -136,24 +136,34 @@ export class FileSeatStorage implements ISeatStorage {
 
             const updatedDays: string[] = [];
             const addedDays: string[] = [];
+            const currentDate = new Date().toISOString().split('T')[0];
 
             if (latestSeats.length > 0) {
                 latestSeats.forEach(latestSeat => {
                     const existingSeatIndex = ScopeSeats!.findIndex(orgSeat => orgSeat.id === latestSeat.id);
 
                     if (existingSeatIndex !== -1) {
-                        if (ScopeSeats![existingSeatIndex].last_activity_at !== latestSeat.last_activity_at) {
-                            ScopeSeats![existingSeatIndex] = latestSeat;
-                            updatedDays.push(latestSeat.last_activity_at);
+                        const existingSeat = ScopeSeats![existingSeatIndex];
+                        const existingDate = existingSeat.day;
+
+                        if (existingDate === currentDate) {
+                            if (existingSeat.last_activity_at !== latestSeat.last_activity_at) {
+                                existingSeat.last_activity_at = latestSeat.last_activity_at;
+                                updatedDays.push(currentDate);
+                            }
+                        } else {
+                            const newSeat = { ...latestSeat, day: currentDate };
+                            ScopeSeats!.push(newSeat);
+                            addedDays.push(currentDate);
                         }
                     } else {
-                        ScopeSeats!.push(latestSeat);
-                        addedDays.push(latestSeat.last_activity_at);
+                        const newSeat = { ...latestSeat, day: currentDate };
+                        ScopeSeats!.push(newSeat);
+                        addedDays.push(currentDate);
                     }
                 });
 
                 if (updatedDays.length > 0 || addedDays.length > 0) {
-                    const date = new Date().toISOString().split('T')[0];
                     let data: any[] = [];
 
                     if (fs.existsSync(this.getScopeFilePath())) {
@@ -166,7 +176,7 @@ export class FileSeatStorage implements ISeatStorage {
                         }
                     }
 
-                    const dayEntry = data.find((entry: any) => entry.day === date);
+                    const dayEntry = data.find((entry: any) => entry.day === currentDate);
                     if (dayEntry) {
                         latestSeats.forEach(latestSeat => {
                             const existingSeatIndex = dayEntry.seats.findIndex((seat: any) => seat.id === latestSeat.id);
@@ -177,10 +187,9 @@ export class FileSeatStorage implements ISeatStorage {
                             }
                         });
                     } else {
-                        data.push({ day: date, organization: this.organizationName, seats: latestSeats });
+                        data.push({ day: currentDate, organization: this.organizationName, seats: latestSeats });
                     }
                     fs.writeFileSync(this.getScopeFilePath(), JSON.stringify(data, null, 2));
-                    //uploadFileToTable(this.getScopeFilePath());
                     this.sendNotification(updatedDays, addedDays);
                 }
             } else {
