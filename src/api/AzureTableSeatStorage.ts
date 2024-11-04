@@ -63,12 +63,12 @@ export class AzureTableSeatStorage implements ISeatStorage {
 
     public async saveSeatsData(seats: Seat[]): Promise<boolean> {
         try {
-            const date = new Date().toISOString().split('T')[0];
 
             for (const seat of seats) {
                 const entity = {
                     partitionKey: this.organizationName,
-                    rowKey: `${date}_${seat.login}`,
+                    rowKey: seat.day,
+                    organization: this.organizationName, // Custom property
                     ...seat
                 };
                 await this.tableClient.upsertEntity(entity);
@@ -98,29 +98,39 @@ export class AzureTableSeatStorage implements ISeatStorage {
 
             const updatedDays: string[] = [];
             const addedDays: string[] = [];
+            const currentDate = new Date().toISOString().split('T')[0];
 
             if (latestSeats.length > 0) {
                 latestSeats.forEach(latestSeat => {
                     const existingSeatIndex = ScopeSeats!.findIndex(orgSeat => orgSeat.id === latestSeat.id);
 
                     if (existingSeatIndex !== -1) {
-                        if (ScopeSeats![existingSeatIndex].last_activity_at !== latestSeat.last_activity_at) {
-                            ScopeSeats![existingSeatIndex] = latestSeat;
-                            updatedDays.push(latestSeat.last_activity_at);
+                        const existingSeat = ScopeSeats![existingSeatIndex];
+                        const existingDate = existingSeat.day;
+
+                        if (existingDate === currentDate) {
+                            if (existingSeat.last_activity_at !== latestSeat.last_activity_at) {
+                                existingSeat.last_activity_at = latestSeat.last_activity_at;
+                                updatedDays.push(currentDate);
+                            }
+                        } else {
+                            const newSeat = { ...latestSeat, date: currentDate };
+                            ScopeSeats!.push(newSeat);
+                            addedDays.push(currentDate);
                         }
                     } else {
-                        ScopeSeats!.push(latestSeat);
-                        addedDays.push(latestSeat.last_activity_at);
+                        const newSeat = { ...latestSeat, date: currentDate };
+                        ScopeSeats!.push(newSeat);
+                        addedDays.push(currentDate);
                     }
                 });
 
                 if (updatedDays.length > 0 || addedDays.length > 0) {
-                    const date = new Date().toISOString().split('T')[0];
-
                     for (const seat of latestSeats) {
                         const entity = {
                             partitionKey: this.organizationName,
-                            rowKey: `${date}_${seat.login}`,
+                            rowKey: seat.day,
+                            organization: this.organizationName, // Custom property
                             ...seat
                         };
                         await this.tableClient.upsertEntity(entity);
@@ -144,10 +154,10 @@ export class AzureTableSeatStorage implements ISeatStorage {
         try {
             const filterConditions = [`PartitionKey eq '${this.organizationName}'`];
             if (since) {
-                filterConditions.push(`RowKey ge '${day}_${since}'`);
+                filterConditions.push(`RowKey ge '${since}'`);
             }
             if (until) {
-                filterConditions.push(`RowKey le '${day}_${until}'`);
+                filterConditions.push(`RowKey le '${until}'`);
             }
             const filter = filterConditions.join(' and ');
 

@@ -82,6 +82,7 @@ export class AzureTableUsageStorage implements IUsageStorage {
                 const entity = {
                     partitionKey: this.scopeName, // Required by Azure Table Storage
                     rowKey: metric.day, // Required by Azure Table Storage
+                    organization: this.scopeName, // Custom property
                     ...serializedMetric
                 };
                 await this.tableClient.upsertEntity(entity);
@@ -136,6 +137,7 @@ export class AzureTableUsageStorage implements IUsageStorage {
                         const entity = {
                             partitionKey: this.scopeName, // Required by Azure Table Storage
                             rowKey: metric.day, // Required by Azure Table Storage
+                            organization: this.scopeName, // Custom property
                             ...serializedMetric
                         };
                         await this.tableClient.upsertEntity(entity);
