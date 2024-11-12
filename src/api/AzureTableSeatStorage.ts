@@ -74,7 +74,7 @@ export class AzureTableSeatStorage implements ISeatStorage {
                 await this.tableClient.upsertEntity(entity);
             }
 
-            console.log('Seats saved successfully to Azure Table Storage.');
+            console.log(`Seats saved successfully to Azure Table Storage for organization: ${this.organizationName}.`);
             await this.compareAndUpdateSeats(seats);
             return true;
         } catch (error) {
