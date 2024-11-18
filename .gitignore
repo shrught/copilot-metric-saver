@@ -21,10 +21,17 @@ data/
 *.sw?
 
 # TypeScript
+dist/
 *.tsbuildinfo
+
+# Azure deployment
+.deployment
 
 # Optional npm cache directory
 .npm
+
+# Ignore zip files
+*.zip
 
 # Optional eslint cache
 .eslintcache

@@ -88,7 +88,7 @@ export class AzureTableUsageStorage implements IUsageStorage {
                 await this.tableClient.upsertEntity(entity);
             }
 
-            console.log('Metrics saved successfully to Azure Table Storage.');
+            console.log(`Metrics saved successfully to Azure Table Storage for organization: ${this.scopeName}.`);
             await this.compareAndUpdateMetrics(metrics);
             return true;
         } catch (error) {
